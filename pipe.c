@@ -46,7 +46,7 @@ int main() {
   else{
     close(fpi[1]);
     dup2(fpi[0], 0);
-    while(read(0, fch, 1) > 0){
+    if(read(0, fch, 1) > 0){
       write(1, "1.", 2);
       write(1, fch, 1);
     }
