@@ -4,6 +4,8 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #define MAX   1000000
 
 int main(){
@@ -13,24 +15,25 @@ int main(){
         exit(1);
     }
 
-   char temp;
-   FILE *fp;
-   char str[MAX], filename[MAX];
-
+   char temp[1];
+   char eofc[1];
+   int fp, i = 2;
+   char str[1], filename[MAX];
+   char ln[20];
+   printf("Enter the filename\n");
    scanf("%s", filename);
 
-   fp = fopen(filename , "r");
-   if(fp == NULL) {
+   fp = open(filename , O_RDONLY);
+   if(fp == -1) {
       perror("Error opening file");
       return(-1);
    }
 
-   int f = fork(), len;
+   int f = fork();
    if(f != 0){
        close(p[0]);
-       while( fgets (str, MAX, fp)!=NULL ) {
-           len = strlen(str);
-           write(p[1], str, len);
+       while( read(fp, &str, 1) > 0){
+           write(p[1], str, 1);
        }
        close(p[1]);
        waitpid(f, NULL, 0);
@@ -38,10 +41,10 @@ int main(){
    else{
        close(p[1]);
        while(read(p[0], &temp, 1) > 0){
-           printf("%c", temp);
+           write(1, temp, 1);
        }
        close(p[0]);
    }
-   fclose(fp);
+   close(fp);
    exit(0);
 }
